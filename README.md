@@ -4,7 +4,7 @@ Download media from RSS feed link
 
 ## Install
 
-    go get -u github.com/jojomi/feeddownload
+    go install github.com/jojomi/feeddownload@latest
 
 ## Usage
 

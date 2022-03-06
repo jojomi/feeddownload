@@ -16,6 +16,7 @@ import (
 
 var (
 	flagRootDryRun   bool
+	flagRootVerbose  bool
 	flagRootUseTitle bool
 )
 
@@ -37,6 +38,7 @@ func main() {
 	pFlags := rootCmd.PersistentFlags()
 	pFlags.BoolVarP(&flagRootUseTitle, "use-title", "t", true, "use episode title for local filename")
 	pFlags.BoolVarP(&flagRootDryRun, "dry-run", "d", false, "just simulate, no downloads are executed")
+	pFlags.BoolVarP(&flagRootVerbose, "verbose", "v", false, "more detailed output")
 
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
@@ -58,17 +60,23 @@ func handleRootCmd(_ *cobra.Command, args []string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(feed.Title)
+	if flagRootVerbose {
+		fmt.Println(feed.Title)
+	}
 
 	for _, f := range feed.Items {
-		fmt.Println("")
-		fmt.Println("Episode title:", f.Title)
+		if flagRootVerbose {
+			fmt.Println("")
+			fmt.Println("Episode title:", f.Title)
+		}
 		for _, e := range f.Enclosures {
 			encURL, err = url.Parse(e.URL)
 			if err != nil {
 				log.Fatal(err)
 			}
-			fmt.Println("Remote URL:", encURL.String())
+			if flagRootVerbose {
+				fmt.Println("Remote URL:", encURL.String())
+			}
 
 			if flagRootUseTitle {
 				targetFilename = filepath.Join(args[1], feeddownload.FilenameFromTitle(f.Title)+path.Ext(encURL.Path))
@@ -76,7 +84,9 @@ func handleRootCmd(_ *cobra.Command, args []string) {
 				remoteFilename = path.Base(encURL.Path)
 				targetFilename = filepath.Join(args[1], remoteFilename)
 			}
-			fmt.Println("Local file:", targetFilename)
+			if flagRootVerbose {
+				fmt.Println("Local file:", targetFilename)
+			}
 
 			err = feeddownload.HandleFile(encURL.String(), targetFilename, flagRootDryRun)
 			if err != nil {
@@ -84,4 +94,6 @@ func handleRootCmd(_ *cobra.Command, args []string) {
 			}
 		}
 	}
+
+	fmt.Printf("checked %d feed items\n", len(feed.Items))
 }

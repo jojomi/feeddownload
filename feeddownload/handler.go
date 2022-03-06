@@ -13,7 +13,10 @@ func HandleFile(remoteURL, targetFilename string, dryRun bool) error {
 	}
 
 	// actual download
-	fmt.Println("Downloading episode...")
+	if dryRun {
+		fmt.Print("[DRY-RUN] ")
+	}
+	fmt.Printf("Downloading %s to %s...\n", remoteURL, targetFilename)
 	if !dryRun {
 		return downloadFile(targetFilename, remoteURL)
 	}

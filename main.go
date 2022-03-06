@@ -44,7 +44,7 @@ func main() {
 	}
 }
 
-func handleRootCmd(cmd *cobra.Command, args []string) {
+func handleRootCmd(_ *cobra.Command, args []string) {
 	var (
 		err            error
 		encURL         *url.URL
@@ -54,7 +54,10 @@ func handleRootCmd(cmd *cobra.Command, args []string) {
 
 	// parse supplied feed
 	fp := gofeed.NewParser()
-	feed, _ := fp.ParseURL(args[0])
+	feed, err := fp.ParseURL(args[0])
+	if err != nil {
+		log.Fatal(err)
+	}
 	fmt.Println(feed.Title)
 
 	for _, f := range feed.Items {
